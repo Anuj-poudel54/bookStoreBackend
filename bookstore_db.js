@@ -1,12 +1,12 @@
 import mysql from 'mysql';
 
 // Creating connection.
-const db= mysql.createConnection({
-        host: "localhost",
-        user: "root",
-        password: "",
-        database: "bookstore_db"
-    });
+const db = mysql.createConnection({
+    host: "localhost",
+    user: "root",
+    password: "",
+    database: "bookstore_db"
+});
 
 // Connect
 db.connect((err) => {
@@ -14,14 +14,14 @@ db.connect((err) => {
         // If database is not created, creating new database.
         if (err.code === "ER_BAD_DB_ERROR") {
             let sql_query = "CREATE DATABASE bookstore_db2;";
-            db.query(sql_query, (err) =>console.log(err));
+            db.query(sql_query, (err) => console.log(err));
         }
         else {
             console.log("Error connecting to db: ", err);
             throw err;
         }
     }
-    else{
+    else {
         console.log("Connection successfull!");
     }
 });
@@ -67,4 +67,4 @@ const deleteBook = (book_id) => {
     execute_query(sql_query);
 }
 
-export { db, insertBook, updateBook, deleteBook};
+export { db, insertBook, updateBook, deleteBook };
