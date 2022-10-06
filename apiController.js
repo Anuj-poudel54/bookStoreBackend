@@ -1,83 +1,83 @@
 import express from "express";
-import { db, insertBook, updateBook, deleteBook } from './bookstore_db.js';
+import { insertBook, updateBook, deleteBook, getBook, getAllCateogies, getAllBooks } from './bookstore_db.js';
 
 const router = express.Router();
 
 // route for listing all books.
-router.get("/", (req, res) => {
-    const sql_query = "SELECT * FROM `book`;"
-    db.query(sql_query, (err, result) => {
-        if (err) {
-            if (err.code === "ER_NO_SUCH_TABLE") {
-                throw err;
-            }
-            else {
-                console.log(`Error while executing query: "${sql_query}"\n${err}`);
-                throw err;
-            }
-        }
-        res.send(result);
-    })
+router.get("/", async (req, res) => {
+    const result = await getAllBooks();
+    if (result['OK']) {
+        res.send(result["DATA"]);
+    }
+    else {
+        res.send(result["MSG"]);
+    }
 });
 
 // Route for inserting new books.
-router.post("/insert", (req, res) => {
+router.post("/insert", async (req, res) => {
     const book_detail = req.body;
     const title = book_detail["title"];
     const author = book_detail["author"];
     const price = book_detail["price"];
     const desc = book_detail["description"];
     const category_id = book_detail["category_id"];
-    insertBook(title, author, price, desc, category_id);
-    res.send(req.body);
+    const result = await insertBook(title, author, price, desc, category_id);
+    
+    if (result['OK']) {
+        res.send({
+            book_detail
+        });
+    }
+    else {
+        res.send(result["MSG"]);
+    }
+
 });
 
 // Get books based upon the category_id.
-router.get("/get-book/:id", (req, res) => {
-    const sql_query = `SELECT * FROM book WHERE category_id = ${req.params.id};`
-    db.query(sql_query, (err, result) => {
-        if (err) {
-            if (err.code === "ER_NO_SUCH_TABLE") {
-                console.log("No category table found");
-                throw err;
-            }
-            else {
-                console.log(`Error while executing query: "${sql_query}"\n${err}`);
-                throw err;
-            }
-        }
-        res.send(result);
-    })
+router.get("/get-book/:id", async (req, res) => {
+    const result = await getBook(req.params.id);
+    if (result['OK']) {
+        res.send(result["DATA"]);
+    }
+    else {
+        res.send(result["MSG"]);
+    }
 })
 
 
 // Updating existing book details.
-router.put("/update/:id", (req, res) => {
-    updateBook(req.params.id, req.body);
-    res.sendStatus(200);
+router.put("/update/:id", async (req, res) => {
+    const result = await updateBook(req.params.id, req.body);
+    if (result['OK']) {
+        res.send({"MSG": "SUCCESS"});
+    }
+    else {
+        res.send(result["MSG"]);
+    }
 })
 
 // deleting existing book.
-router.delete("/del/:id", (req, res) => {
-    deleteBook(req.params.id);
-    res.sendStatus(200);
+router.delete("/del/:id", async (req, res) => {
+    const result = deleteBook(req.params.id);
+    if (result['OK']) {
+        res.send({"MSG": "SUCCESS"});
+    }
+    else {
+        res.send(result["MSG"]);
+    }
 })
 
 // getting all the categories
-router.get("/cats", (req, res) => {
-    const sql_query = `SELECT * FROM category;`
-    db.query(sql_query, (err, result) => {
-        if (err) {
-            if (err.code === "ER_NO_SUCH_TABLE") {
-                throw err;
-            }
-            else {
-                console.log(`Error while executing query: "${sql_query}"\n${err}`);
-                throw err;
-            }
-        }
-        res.send(result);
-    })
+router.get("/cats", async (req, res) => {
+    const result = await getAllCateogies()
+    if (result['OK']) {
+        res.send(result["DATA"]);
+    }
+    else {
+        res.send(result["MSG"]);
+    }
 })
 
 
