@@ -24,15 +24,10 @@ router.get("/", (req, res) => {
 router.post("/insert", (req, res) => {
     const book_detail = req.body;
     const title = book_detail["title"];
-    console.log(title)
     const author = book_detail["author"];
-    console.log(author)
     const price = book_detail["price"];
-    console.log(price)
     const desc = book_detail["description"];
-    console.log(desc)
     const category_id = book_detail["category_id"];
-    console.log(category_id)
     insertBook(title, author, price, desc, category_id);
     res.send(req.body);
 });
@@ -43,6 +38,7 @@ router.get("/get-book/:id", (req, res) => {
     db.query(sql_query, (err, result) => {
         if (err) {
             if (err.code === "ER_NO_SUCH_TABLE") {
+                console.log("No category table found");
                 throw err;
             }
             else {
