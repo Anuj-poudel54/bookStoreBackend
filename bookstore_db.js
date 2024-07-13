@@ -67,8 +67,8 @@ const getAllCateogies = () => {
 }
 
 // For inserting the new book.
-const insertBook = (title, author, price, description, catagory_id) => {
-    const sqlQuery = `INSERT INTO \`book\` (\`book_id\`, \`title\`, \`author\`, \`price\`, \`description\`, \`category_id\`) VALUES (NULL,  \"${title}\", \"${author}\", \"${price}\", \"${description}\", \"${catagory_id}\");`
+const insertBook = (title, author, price, description, catagory_id, fileurl = null) => {
+    const sqlQuery = `INSERT INTO \`book\` (\`book_id\`, \`title\`, \`author\`, \`price\`, \`description\`, \`category_id\`, \`fileurl\`) VALUES (NULL,  \"${title}\", \"${author}\", \"${price}\", \"${description}\", \"${catagory_id}\", \"${fileurl}\");`
     return executeQuery(sqlQuery);
 }
 
