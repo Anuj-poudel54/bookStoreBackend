@@ -8,7 +8,7 @@ const PORT = '3000';
 
 // Using middlewares
 app.use(bodyParser.urlencoded({ extended: false }));
-app.use(bodyParser.json());
+// app.use(bodyParser.json());
 app.use(cors({
     origin: '*'
 }));

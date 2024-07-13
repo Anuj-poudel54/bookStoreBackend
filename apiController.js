@@ -4,6 +4,7 @@ import multer from "multer";
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import bodyParser from "body-parser";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -13,13 +14,21 @@ const router = express.Router();
 
 const storage = multer.diskStorage({
     destination: (req, file, cb) => {
+
+        const directory = path.join(__dirname, 'uploads');
+
+        if (!fs.existsSync(directory)) {
+            fs.mkdirSync(directory, { recursive: true });
+        }
         cb(null, 'uploads/')
     },
 
     filename: (req, file, cb) => {
         let fileExtention = file.originalname.split(".")[1];
+        const filename = file.fieldname + '-' + Date.now() + '.' + fileExtention;
+        req.fileurl = `http://localhost:3000/image/${filename}`; // Appending fileurl
 
-        cb(null, file.fieldname + '-' + Date.now() + '.' + fileExtention);
+        cb(null, filename);
     }
 });
 
@@ -48,16 +57,16 @@ router.get("/", async (req, res) => {
 
 // Route for inserting new books.
 router.post("/insert", upload.single('image'), async (req, res) => {
-    const book_detail = req.body;
 
-    const imageFileName = req.file?.filename;
+    const book_detail = JSON.parse(req.body.book);
+
 
     const title = book_detail["title"];
     const author = book_detail["author"];
     const price = book_detail["price"];
     const desc = book_detail["description"];
     const category_id = book_detail["category_id"];
-    const fileurl = `http://localhost:3000/image/${imageFileName}`;
+    const fileurl = req.fileurl;
 
     const result = await insertBook(title, author, price, desc, category_id, fileurl);
 
@@ -85,8 +94,15 @@ router.get("/get-book/:id", async (req, res) => {
 
 
 // Updating existing book details.
-router.put("/update/:id", async (req, res) => {
-    const result = await updateBook(req.params.id, req.body);
+router.put("/update/:id", upload.single("image"), async (req, res) => {
+
+    const bookDetail = JSON.parse(req.body.book);
+    const fileurl = req.fileurl;
+    if (req.file) {
+        bookDetail.fileurl = fileurl;
+    }
+
+    const result = await updateBook(req.params.id, bookDetail);
     if (result['OK']) {
         res.send({ "MSG": "SUCCESS" });
     }
